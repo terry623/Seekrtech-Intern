@@ -11,14 +11,15 @@
     "eject": "react-app-rewired eject"
   },
   "dependencies": {
-    "react": "^16.6.3",
-    "react-dom": "^16.6.3",
-    "react-scripts": "2.1.1",
-    "react-app-rewired": "^1.6.2",
-    "react-spring": "^6.1.8",
-    "prop-types": "^15.6.2",
     "antd": "^3.10.1",
     "axios": "^0.18.0",
+    "prop-types": "^15.6.2",
+    "react": "^16.6.3",
+    "react-app-rewired": "^1.6.2",
+    "react-dom": "^16.6.3",
+    "react-scripts": "2.1.1",
+    "react-virtualized": "^9.21.0",
+    "scrollreveal": "^4.0.5",
     "styled-components": "^4.0.2",
     "styled-media-query": "^2.0.2"
   },
