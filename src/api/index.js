@@ -1,16 +1,15 @@
 import axios from 'axios';
 
-const baseURL = 'https://testsite.staging.seekrtech.com/forest_rankings';
+const baseURL = 'http://localhost:8080';
 
-async function getForestRankingData({ number, lastPosition }) {
+async function getForestRankingDataFromServer({ number, lastPosition }) {
+  let response = {};
   try {
-    const response = await axios.get(
-      `${baseURL}?n=${number}&last_pos=${lastPosition}`
-    );
-    console.log(response);
+    response = await axios.get(`${baseURL}/${number}/${lastPosition}`);
   } catch (error) {
     console.error(error);
   }
+  return response.data;
 }
 
-export { getForestRankingData };
+export { getForestRankingDataFromServer };

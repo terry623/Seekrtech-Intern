@@ -5,7 +5,7 @@ import React, { Component } from 'react';
 // import WindowScroller from 'react-virtualized/dist/commonjs/WindowScroller';
 import { Avatar, List, message } from 'antd';
 
-import { getForestRankingData } from '../../api';
+import { getForestRankingDataFromServer } from '../../api';
 
 class Chart extends Component {
   state = {
@@ -16,8 +16,11 @@ class Chart extends Component {
   loadedRowsMap = {};
 
   async componentDidMount() {
-    const results = await getForestRankingData({ number: 10, lastPosition: 0 });
-    console.table(results);
+    const results = await getForestRankingDataFromServer({
+      number: 10,
+      lastPosition: 0,
+    });
+    console.log(results);
     // this.setState({ data: results });
   }
 
@@ -38,7 +41,10 @@ class Chart extends Component {
       return;
     }
 
-    const results = await getForestRankingData({ number: 10, lastPosition: 0 });
+    const results = await getForestRankingDataFromServer({
+      number: 10,
+      lastPosition: 0,
+    });
     data = data.concat(results);
     this.setState({ data, loading: false });
   }
