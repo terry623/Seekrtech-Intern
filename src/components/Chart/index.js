@@ -3,9 +3,10 @@ import InfiniteLoader from 'react-virtualized/dist/commonjs/InfiniteLoader';
 import React, { Component } from 'react';
 import VList from 'react-virtualized/dist/commonjs/List';
 import WindowScroller from 'react-virtualized/dist/commonjs/WindowScroller';
-import { Avatar, List, Spin, message } from 'antd';
+import { Avatar, List, Spin } from 'antd';
+import './index.css';
 
-import { getForestRankingDataFromServer } from '../../api';
+import { getForestRankingDataFromServer, recordsNumber } from '../../api';
 
 class Chart extends Component {
   state = {
@@ -17,38 +18,33 @@ class Chart extends Component {
 
   async componentDidMount() {
     const results = await getForestRankingDataFromServer({
-      number: 10,
       lastPosition: 0,
     });
-    console.log(results.ranking);
-    this.setState({ data: results.ranking });
+
+    this.setState({ data: results });
   }
 
-  isRowLoaded = ({ index }) => !!this.loadedRowsMap[index];
-
+  // TODO: 要再調整一下大小，讓畫面可以清楚看到在 Load 下一筆
   handleInfiniteOnLoad = async ({ startIndex, stopIndex }) => {
     let { data } = this.state;
     this.setState({ loading: true });
+
+    console.log(`StartIndex: ${startIndex}, StopIndex: ${stopIndex}`);
 
     for (let i = startIndex; i <= stopIndex; i++) {
       // 1 means loading
       this.loadedRowsMap[i] = 1;
     }
 
-    if (data.length > 19) {
-      message.warning('Virtualized List loaded all');
-      this.setState({ loading: false });
-      return;
-    }
-
     const results = await getForestRankingDataFromServer({
-      number: 10,
-      lastPosition: 0,
+      lastPosition: stopIndex,
     });
+
     data = data.concat(results);
     this.setState({ data, loading: false });
   };
 
+  // TODO: 用成另外元件
   renderItem = ({ index, key, style }) => {
     const { data } = this.state;
     const item = data[index];
@@ -59,13 +55,16 @@ class Chart extends Component {
           title={item.name}
           description={item.user_id}
         />
-        <div>Content</div>
+        <div>{index}</div>
       </List.Item>
     );
   };
 
+  isRowLoaded = ({ index }) => !!this.loadedRowsMap[index];
+
   render() {
     const { data } = this.state;
+
     const vlist = ({
       height,
       isScrolling,
@@ -88,6 +87,7 @@ class Chart extends Component {
         width={width}
       />
     );
+
     const autoSize = ({
       height,
       isScrolling,
@@ -108,6 +108,7 @@ class Chart extends Component {
         }
       </AutoSizer>
     );
+
     const infiniteLoader = ({
       height,
       isScrolling,
@@ -117,6 +118,7 @@ class Chart extends Component {
       <InfiniteLoader
         isRowLoaded={this.isRowLoaded}
         loadMoreRows={this.handleInfiniteOnLoad}
+        minimumBatchSize={recordsNumber}
         rowCount={data.length}
       >
         {({ onRowsRendered }) =>
@@ -130,6 +132,7 @@ class Chart extends Component {
         }
       </InfiniteLoader>
     );
+
     return (
       <List>
         {data.length > 0 && <WindowScroller>{infiniteLoader}</WindowScroller>}
