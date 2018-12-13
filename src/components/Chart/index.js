@@ -1,9 +1,9 @@
-// import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
-// import InfiniteLoader from 'react-virtualized/dist/commonjs/InfiniteLoader';
+import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
+import InfiniteLoader from 'react-virtualized/dist/commonjs/InfiniteLoader';
 import React, { Component } from 'react';
-// import VList from 'react-virtualized/dist/commonjs/List';
-// import WindowScroller from 'react-virtualized/dist/commonjs/WindowScroller';
-import { Avatar, List, message } from 'antd';
+import VList from 'react-virtualized/dist/commonjs/List';
+import WindowScroller from 'react-virtualized/dist/commonjs/WindowScroller';
+import { Avatar, List, Spin, message } from 'antd';
 
 import { getForestRankingDataFromServer } from '../../api';
 
@@ -20,13 +20,13 @@ class Chart extends Component {
       number: 10,
       lastPosition: 0,
     });
-    console.log(results);
-    // this.setState({ data: results });
+    console.log(results.ranking);
+    this.setState({ data: results.ranking });
   }
 
   isRowLoaded = ({ index }) => !!this.loadedRowsMap[index];
 
-  async handleInfiniteOnLoad({ startIndex, stopIndex }) {
+  handleInfiniteOnLoad = async ({ startIndex, stopIndex }) => {
     let { data } = this.state;
     this.setState({ loading: true });
 
@@ -47,7 +47,7 @@ class Chart extends Component {
     });
     data = data.concat(results);
     this.setState({ data, loading: false });
-  }
+  };
 
   renderItem = ({ index, key, style }) => {
     const { data } = this.state;
@@ -55,11 +55,9 @@ class Chart extends Component {
     return (
       <List.Item key={key} style={style}>
         <List.Item.Meta
-          avatar={
-            <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
-          }
-          title={<a href="https://ant.design">{item.name.last}</a>}
-          description={item.email}
+          avatar={<Avatar src={item.avatar} />}
+          title={item.name}
+          description={item.user_id}
         />
         <div>Content</div>
       </List.Item>
@@ -68,79 +66,75 @@ class Chart extends Component {
 
   render() {
     const { data } = this.state;
-    // const vlist = ({
-    //   height,
-    //   isScrolling,
-    //   onChildScroll,
-    //   scrollTop,
-    //   onRowsRendered,
-    //   width,
-    // }) => (
-    //   <VList
-    //     autoHeight
-    //     height={height}
-    //     isScrolling={isScrolling}
-    //     onScroll={onChildScroll}
-    //     overscanRowCount={2}
-    //     rowCount={data.length}
-    //     rowHeight={73}
-    //     rowRenderer={this.renderItem}
-    //     onRowsRendered={onRowsRendered}
-    //     scrollTop={scrollTop}
-    //     width={width}
-    //   />
-    // );
-    // const autoSize = ({
-    //   height,
-    //   isScrolling,
-    //   onChildScroll,
-    //   scrollTop,
-    //   onRowsRendered,
-    // }) => (
-    //   <AutoSizer disableHeight>
-    //     {({ width }) =>
-    //       vlist({
-    //         height,
-    //         isScrolling,
-    //         onChildScroll,
-    //         scrollTop,
-    //         onRowsRendered,
-    //         width,
-    //       })
-    //     }
-    //   </AutoSizer>
-    // );
-    // const infiniteLoader = ({
-    //   height,
-    //   isScrolling,
-    //   onChildScroll,
-    //   scrollTop,
-    // }) => (
-    //   <InfiniteLoader
-    //     isRowLoaded={this.isRowLoaded}
-    //     loadMoreRows={this.handleInfiniteOnLoad}
-    //     rowCount={data.length}
-    //   >
-    //     {({ onRowsRendered }) =>
-    //       autoSize({
-    //         height,
-    //         isScrolling,
-    //         onChildScroll,
-    //         scrollTop,
-    //         onRowsRendered,
-    //       })
-    //     }
-    //   </InfiniteLoader>
-    // );
+    const vlist = ({
+      height,
+      isScrolling,
+      onChildScroll,
+      scrollTop,
+      onRowsRendered,
+      width,
+    }) => (
+      <VList
+        autoHeight
+        height={height}
+        isScrolling={isScrolling}
+        onScroll={onChildScroll}
+        overscanRowCount={2}
+        rowCount={data.length}
+        rowHeight={73}
+        rowRenderer={this.renderItem}
+        onRowsRendered={onRowsRendered}
+        scrollTop={scrollTop}
+        width={width}
+      />
+    );
+    const autoSize = ({
+      height,
+      isScrolling,
+      onChildScroll,
+      scrollTop,
+      onRowsRendered,
+    }) => (
+      <AutoSizer disableHeight>
+        {({ width }) =>
+          vlist({
+            height,
+            isScrolling,
+            onChildScroll,
+            scrollTop,
+            onRowsRendered,
+            width,
+          })
+        }
+      </AutoSizer>
+    );
+    const infiniteLoader = ({
+      height,
+      isScrolling,
+      onChildScroll,
+      scrollTop,
+    }) => (
+      <InfiniteLoader
+        isRowLoaded={this.isRowLoaded}
+        loadMoreRows={this.handleInfiniteOnLoad}
+        rowCount={data.length}
+      >
+        {({ onRowsRendered }) =>
+          autoSize({
+            height,
+            isScrolling,
+            onChildScroll,
+            scrollTop,
+            onRowsRendered,
+          })
+        }
+      </InfiniteLoader>
+    );
     return (
-      // <List>
-      //   {data.length > 0 && <WindowScroller>{infiniteLoader}</WindowScroller>}
-      //   {this.state.loading && <Spin className="demo-loading" />}
-      // </List>
-      <div>
-        {this.state.loading}
-        {console.log(data)}
-      </div>
+      <List>
+        {data.length > 0 && <WindowScroller>{infiniteLoader}</WindowScroller>}
+        {this.state.loading && <Spin className="demo-loading" />}
+      </List>
     );
   }
 }
