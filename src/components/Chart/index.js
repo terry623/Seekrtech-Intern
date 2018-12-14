@@ -1,9 +1,11 @@
 import InfiniteScroll from 'react-infinite-scroller';
 import React, { Component } from 'react';
-import { Avatar, List, Spin, message } from 'antd';
+import { List, Spin, message } from 'antd';
 import './index.css';
 
 import { getForestRankingDataFromServer, maximumNumber } from '../../api';
+
+import Cell from './Cell';
 
 class Chart extends Component {
   state = {
@@ -16,8 +18,6 @@ class Chart extends Component {
     const results = await getForestRankingDataFromServer({
       lastPosition: 0,
     });
-    console.log('In ComponentDidMount');
-    console.log(results);
 
     this.setState({ data: results });
   }
@@ -38,34 +38,10 @@ class Chart extends Component {
     const results = await getForestRankingDataFromServer({
       lastPosition: data.length,
     });
-    console.log(results);
 
     data = data.concat(results);
     this.setState({ data, loading: false });
   };
-
-  // TODO: 用成另外元件
-  renderItem = ({
-    user_id: userId,
-    avatar,
-    name,
-    health_count: healthCount,
-    dead_count: deadCount,
-    total_minutes: totalMinutes,
-  }) => (
-    <List.Item key={userId}>
-      <List.Item.Meta
-        avatar={<Avatar src={avatar} />}
-        title={name}
-        description={totalMinutes}
-      />
-      <div>
-        {healthCount} / {deadCount}
-      </div>
-    </List.Item>
-  );
-
-  isRowLoaded = ({ index }) => !!this.loadedRowsMap[index];
 
   render() {
     const { data, loading, hasMore } = this.state;
@@ -79,7 +55,7 @@ class Chart extends Component {
           hasMore={!loading && hasMore}
           useWindow={false}
         >
-          <List dataSource={data} renderItem={this.renderItem}>
+          <List dataSource={data} renderItem={item => <Cell item={item} />}>
             {loading && hasMore && (
               <div className="demo-loading-container">
                 <Spin />
