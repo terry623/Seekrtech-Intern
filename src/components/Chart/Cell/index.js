@@ -6,7 +6,7 @@ class Cell extends Component {
   render() {
     const {
       user_id: userId,
-      avatar,
+      // avatar,
       name,
       health_count: healthCount,
       dead_count: deadCount,
@@ -16,7 +16,9 @@ class Cell extends Component {
     return (
       <List.Item key={userId}>
         <List.Item.Meta
-          avatar={<Avatar src={avatar} />}
+          avatar={
+            <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
+          }
           title={name}
           description={totalMinutes}
         />

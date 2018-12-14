@@ -1,11 +1,17 @@
+import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import InfiniteLoader from 'react-virtualized/dist/commonjs/InfiniteLoader';
 import React, { Component } from 'react';
 import VList from 'react-virtualized/dist/commonjs/List';
-import { Avatar, List, Spin, message } from 'antd';
+import WindowScroller from 'react-virtualized/dist/commonjs/WindowScroller';
+import { Avatar, List, message } from 'antd';
 
 import './index.css';
 
-import { getForestRankingDataFromServer, maximumNumber } from '../../api';
+import {
+  getForestRankingDataFromServer,
+  maximumNumber,
+  recordsNumber,
+} from '../../api';
 
 // import Cell from './Cell';
 
@@ -17,13 +23,13 @@ class Chart extends Component {
 
   loadedRowsMap = {};
 
-  // async componentDidMount() {
-  //   const results = await getForestRankingDataFromServer({
-  //     lastPosition: 0,
-  //   });
+  async componentDidMount() {
+    const results = await getForestRankingDataFromServer({
+      lastPosition: 0,
+    });
 
-  //   this.setState({ data: results });
-  // }
+    this.setState({ data: results });
+  }
 
   componentDidUpdate() {
     if (this.state.loading) {
@@ -36,7 +42,7 @@ class Chart extends Component {
     let { data } = this.state;
     this.setState({ loading: true });
 
-    console.log(startIndex, stopIndex);
+    console.log(`Start: ${startIndex}, Stop ${stopIndex}`);
 
     for (let i = startIndex; i <= stopIndex; i++) {
       // 1 means loading
@@ -69,37 +75,87 @@ class Chart extends Component {
             <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
           }
           title={<a href="https://ant.design">{index}</a>}
-          // description={item.name}
         />
-        <div>Content</div>
+        <div>{item.name}</div>
       </List.Item>
     );
   };
 
   render() {
-    const { data, loading } = this.state;
+    const { data } = this.state;
+
+    const vlist = ({
+      height,
+      isScrolling,
+      onChildScroll,
+      scrollTop,
+      onRowsRendered,
+      width,
+    }) => (
+      <VList
+        autoHeight
+        height={height}
+        isScrolling={isScrolling}
+        onScroll={onChildScroll}
+        overscanRowCount={2}
+        rowCount={data.length}
+        rowHeight={73}
+        rowRenderer={this.renderItem}
+        onRowsRendered={onRowsRendered}
+        scrollTop={scrollTop}
+        width={width}
+      />
+    );
+
+    const autoSize = ({
+      height,
+      isScrolling,
+      onChildScroll,
+      scrollTop,
+      onRowsRendered,
+    }) => (
+      <AutoSizer disableHeight>
+        {({ width }) =>
+          vlist({
+            height,
+            isScrolling,
+            onChildScroll,
+            scrollTop,
+            onRowsRendered,
+            width,
+          })
+        }
+      </AutoSizer>
+    );
+
+    const infiniteLoader = ({
+      height,
+      isScrolling,
+      onChildScroll,
+      scrollTop,
+    }) => (
+      <InfiniteLoader
+        isRowLoaded={this.isRowLoaded}
+        loadMoreRows={this.handleInfiniteOnLoad}
+        rowCount={data.length}
+        minimumBatchSize={recordsNumber}
+        threshold={0}
+      >
+        {({ onRowsRendered }) =>
+          autoSize({
+            height,
+            isScrolling,
+            onChildScroll,
+            scrollTop,
+            onRowsRendered,
+          })
+        }
+      </InfiniteLoader>
+    );
 
     return (
       <List>
-        <InfiniteLoader
-          isRowLoaded={this.isRowLoaded}
-          loadMoreRows={this.handleInfiniteOnLoad}
-          rowCount={maximumNumber}
-          minimumBatchSize={20}
-          threshold={20}
-        >
-          {({ onRowsRendered, registerChild }) => (
-            <VList
-              height={500}
-              onRowsRendered={onRowsRendered}
-              ref={registerChild}
-              rowCount={maximumNumber}
-              rowHeight={50}
-              rowRenderer={this.renderItem}
-              width={600}
-            />
-          )}
-        </InfiniteLoader>
+        {data.length > 0 && <WindowScroller>{infiniteLoader}</WindowScroller>}
       </List>
     );
   }
