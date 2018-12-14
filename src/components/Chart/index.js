@@ -3,7 +3,7 @@ import InfiniteLoader from 'react-virtualized/dist/commonjs/InfiniteLoader';
 import React, { Component } from 'react';
 import VList from 'react-virtualized/dist/commonjs/List';
 import WindowScroller from 'react-virtualized/dist/commonjs/WindowScroller';
-import { Avatar, List, Spin } from 'antd';
+import { Avatar, List, Spin, message } from 'antd';
 import './index.css';
 
 import { getForestRankingDataFromServer, recordsNumber } from '../../api';
@@ -20,25 +20,44 @@ class Chart extends Component {
     const results = await getForestRankingDataFromServer({
       lastPosition: 0,
     });
+    console.log('In ComponentDidMount');
+    console.log(results);
 
     this.setState({ data: results });
   }
 
-  // TODO: 要再調整一下大小，讓畫面可以清楚看到在 Load 下一筆
+  inProgress = ({ startIndex, stopIndex }) => {
+    console.log(`StartIndex: ${startIndex}, StopIndex: ${stopIndex}`);
+    const hide = message.loading('Action in progress..', 0);
+    setTimeout(hide, 1000);
+  };
+
+  isFinish = ({ startIndex, stopIndex }) => {
+    console.log(`StartIndex: ${startIndex}, StopIndex: ${stopIndex}`);
+    message.warning('Virtualized List loaded all');
+    this.setState({ loading: false });
+  };
+
   handleInfiniteOnLoad = async ({ startIndex, stopIndex }) => {
     let { data } = this.state;
     this.setState({ loading: true });
-
-    console.log(`StartIndex: ${startIndex}, StopIndex: ${stopIndex}`);
+    this.inProgress({ startIndex, stopIndex });
 
     for (let i = startIndex; i <= stopIndex; i++) {
       // 1 means loading
       this.loadedRowsMap[i] = 1;
     }
 
+    // FIXME: 有問題!
+    // if (data.length > maximumNumber) {
+    //   this.isFinish();
+    //   return;
+    // }
+
     const results = await getForestRankingDataFromServer({
-      lastPosition: stopIndex,
+      lastPosition: startIndex,
     });
+    console.log(results);
 
     data = data.concat(results);
     this.setState({ data, loading: false });
