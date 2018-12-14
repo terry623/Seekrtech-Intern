@@ -1,5 +1,11 @@
-.demo-loading {
+.demo-infinite-container {
+  overflow: auto;
+  height: 30vh;
+  width: 50vw;
+}
+.demo-loading-container {
   position: absolute;
   bottom: 40px;
-  left: 50%;
+  width: 100%;
+  text-align: center;
 }

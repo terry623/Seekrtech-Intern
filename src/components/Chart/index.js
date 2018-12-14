@@ -1,20 +1,16 @@
-import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
-import InfiniteLoader from 'react-virtualized/dist/commonjs/InfiniteLoader';
+import InfiniteScroll from 'react-infinite-scroller';
 import React, { Component } from 'react';
-import VList from 'react-virtualized/dist/commonjs/List';
-import WindowScroller from 'react-virtualized/dist/commonjs/WindowScroller';
 import { Avatar, List, Spin, message } from 'antd';
 import './index.css';
 
-import { getForestRankingDataFromServer, recordsNumber } from '../../api';
+import { getForestRankingDataFromServer, maximumNumber } from '../../api';
 
 class Chart extends Component {
   state = {
     data: [],
     loading: false,
+    hasMore: true,
   };
-
-  loadedRowsMap = {};
 
   async componentDidMount() {
     const results = await getForestRankingDataFromServer({
@@ -26,36 +22,21 @@ class Chart extends Component {
     this.setState({ data: results });
   }
 
-  inProgress = ({ startIndex, stopIndex }) => {
-    console.log(`StartIndex: ${startIndex}, StopIndex: ${stopIndex}`);
-    const hide = message.loading('Action in progress..', 0);
-    setTimeout(hide, 1000);
-  };
-
-  isFinish = ({ startIndex, stopIndex }) => {
-    console.log(`StartIndex: ${startIndex}, StopIndex: ${stopIndex}`);
-    message.warning('Virtualized List loaded all');
-    this.setState({ loading: false });
-  };
-
-  handleInfiniteOnLoad = async ({ startIndex, stopIndex }) => {
+  handleInfiniteOnLoad = async () => {
     let { data } = this.state;
     this.setState({ loading: true });
-    this.inProgress({ startIndex, stopIndex });
 
-    for (let i = startIndex; i <= stopIndex; i++) {
-      // 1 means loading
-      this.loadedRowsMap[i] = 1;
+    if (data.length >= maximumNumber) {
+      message.warning('Infinite List loaded all');
+      this.setState({
+        hasMore: false,
+        loading: false,
+      });
+      return;
     }
 
-    // FIXME: 有問題!
-    // if (data.length > maximumNumber) {
-    //   this.isFinish();
-    //   return;
-    // }
-
     const results = await getForestRankingDataFromServer({
-      lastPosition: startIndex,
+      lastPosition: data.length,
     });
     console.log(results);
 
@@ -64,99 +45,49 @@ class Chart extends Component {
   };
 
   // TODO: 用成另外元件
-  renderItem = ({ index, key, style }) => {
-    const { data } = this.state;
-    const item = data[index];
-    return (
-      <List.Item key={key} style={style}>
-        <List.Item.Meta
-          avatar={<Avatar src={item.avatar} />}
-          title={item.name}
-          description={item.user_id}
-        />
-        <div>{index}</div>
-      </List.Item>
-    );
-  };
+  renderItem = ({
+    user_id: userId,
+    avatar,
+    name,
+    health_count: healthCount,
+    dead_count: deadCount,
+    total_minutes: totalMinutes,
+  }) => (
+    <List.Item key={userId}>
+      <List.Item.Meta
+        avatar={<Avatar src={avatar} />}
+        title={name}
+        description={totalMinutes}
+      />
+      <div>
+        {healthCount} / {deadCount}
+      </div>
+    </List.Item>
+  );
 
   isRowLoaded = ({ index }) => !!this.loadedRowsMap[index];
 
   render() {
-    const { data } = this.state;
-
-    const vlist = ({
-      height,
-      isScrolling,
-      onChildScroll,
-      scrollTop,
-      onRowsRendered,
-      width,
-    }) => (
-      <VList
-        autoHeight
-        height={height}
-        isScrolling={isScrolling}
-        onScroll={onChildScroll}
-        overscanRowCount={2}
-        rowCount={data.length}
-        rowHeight={73}
-        rowRenderer={this.renderItem}
-        onRowsRendered={onRowsRendered}
-        scrollTop={scrollTop}
-        width={width}
-      />
-    );
-
-    const autoSize = ({
-      height,
-      isScrolling,
-      onChildScroll,
-      scrollTop,
-      onRowsRendered,
-    }) => (
-      <AutoSizer disableHeight>
-        {({ width }) =>
-          vlist({
-            height,
-            isScrolling,
-            onChildScroll,
-            scrollTop,
-            onRowsRendered,
-            width,
-          })
-        }
-      </AutoSizer>
-    );
-
-    const infiniteLoader = ({
-      height,
-      isScrolling,
-      onChildScroll,
-      scrollTop,
-    }) => (
-      <InfiniteLoader
-        isRowLoaded={this.isRowLoaded}
-        loadMoreRows={this.handleInfiniteOnLoad}
-        minimumBatchSize={recordsNumber}
-        rowCount={data.length}
-      >
-        {({ onRowsRendered }) =>
-          autoSize({
-            height,
-            isScrolling,
-            onChildScroll,
-            scrollTop,
-            onRowsRendered,
-          })
-        }
-      </InfiniteLoader>
-    );
+    const { data, loading, hasMore } = this.state;
 
     return (
-      <List>
-        {data.length > 0 && <WindowScroller>{infiniteLoader}</WindowScroller>}
-        {this.state.loading && <Spin className="demo-loading" />}
-      </List>
+      <div className="demo-infinite-container">
+        <InfiniteScroll
+          initialLoad={false}
+          pageStart={0}
+          loadMore={this.handleInfiniteOnLoad}
+          hasMore={!loading && hasMore}
+          useWindow={false}
+        >
+          <List dataSource={data} renderItem={this.renderItem}>
+            {loading && hasMore && (
+              <div className="demo-loading-container">
+                <Spin />
+              </div>
+            )}
+          </List>
+        </InfiniteScroll>
+      </div>
     );
   }
 }
