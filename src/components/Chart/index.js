@@ -1,37 +1,51 @@
-import InfiniteScroll from 'react-infinite-scroller';
+import InfiniteLoader from 'react-virtualized/dist/commonjs/InfiniteLoader';
 import React, { Component } from 'react';
-import { List, Spin, message } from 'antd';
+import VList from 'react-virtualized/dist/commonjs/List';
+import { Avatar, List, Spin, message } from 'antd';
+
 import './index.css';
 
 import { getForestRankingDataFromServer, maximumNumber } from '../../api';
 
-import Cell from './Cell';
+// import Cell from './Cell';
 
 class Chart extends Component {
   state = {
     data: [],
     loading: false,
-    hasMore: true,
   };
 
-  async componentDidMount() {
-    const results = await getForestRankingDataFromServer({
-      lastPosition: 0,
-    });
+  loadedRowsMap = {};
 
-    this.setState({ data: results });
+  // async componentDidMount() {
+  //   const results = await getForestRankingDataFromServer({
+  //     lastPosition: 0,
+  //   });
+
+  //   this.setState({ data: results });
+  // }
+
+  componentDidUpdate() {
+    if (this.state.loading) {
+      const hide = message.loading('Action in progress..', 0);
+      setTimeout(hide, 1500);
+    }
   }
 
-  handleInfiniteOnLoad = async () => {
+  handleInfiniteOnLoad = async ({ startIndex, stopIndex }) => {
     let { data } = this.state;
     this.setState({ loading: true });
 
+    console.log(startIndex, stopIndex);
+
+    for (let i = startIndex; i <= stopIndex; i++) {
+      // 1 means loading
+      this.loadedRowsMap[i] = 1;
+    }
+
     if (data.length >= maximumNumber) {
       message.warning('Infinite List loaded all');
-      this.setState({
-        hasMore: false,
-        loading: false,
-      });
+      this.setState({ loading: false });
       return;
     }
 
@@ -43,27 +57,50 @@ class Chart extends Component {
     this.setState({ data, loading: false });
   };
 
+  isRowLoaded = ({ index }) => !!this.loadedRowsMap[index];
+
+  renderItem = ({ index, key, style }) => {
+    const { data } = this.state;
+    const item = data[index];
+    return (
+      <List.Item key={key} style={style}>
+        <List.Item.Meta
+          avatar={
+            <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
+          }
+          title={<a href="https://ant.design">{index}</a>}
+          // description={item.name}
+        />
+        <div>Content</div>
+      </List.Item>
+    );
+  };
+
   render() {
-    const { data, loading, hasMore } = this.state;
+    const { data, loading } = this.state;
 
     return (
-      <div className="demo-infinite-container">
-        <InfiniteScroll
-          initialLoad={false}
-          pageStart={0}
-          loadMore={this.handleInfiniteOnLoad}
-          hasMore={!loading && hasMore}
-          useWindow={false}
+      <List>
+        <InfiniteLoader
+          isRowLoaded={this.isRowLoaded}
+          loadMoreRows={this.handleInfiniteOnLoad}
+          rowCount={maximumNumber}
+          minimumBatchSize={20}
+          threshold={20}
         >
-          <List dataSource={data} renderItem={item => <Cell item={item} />}>
-            {loading && hasMore && (
-              <div className="demo-loading-container">
-                <Spin />
-              </div>
-            )}
-          </List>
-        </InfiniteScroll>
-      </div>
+          {({ onRowsRendered, registerChild }) => (
+            <VList
+              height={500}
+              onRowsRendered={onRowsRendered}
+              ref={registerChild}
+              rowCount={maximumNumber}
+              rowHeight={50}
+              rowRenderer={this.renderItem}
+              width={600}
+            />
+          )}
+        </InfiniteLoader>
+      </List>
     );
   }
 }
