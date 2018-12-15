@@ -1,4 +1,3 @@
-import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import InfiniteLoader from 'react-virtualized/dist/commonjs/InfiniteLoader';
 import React, { Component } from 'react';
 import VList from 'react-virtualized/dist/commonjs/List';
@@ -80,42 +79,21 @@ class Chart extends Component {
       onChildScroll,
       scrollTop,
       onRowsRendered,
-      width,
     }) => (
       <VList
         autoHeight
+        className="main"
         height={height}
         isScrolling={isScrolling}
         onScroll={onChildScroll}
         overscanRowCount={2}
         rowCount={data.length}
-        rowHeight={73}
+        rowHeight={80}
         rowRenderer={this.renderItem}
         onRowsRendered={onRowsRendered}
         scrollTop={scrollTop}
-        width={width / 3}
+        width={600}
       />
-    );
-
-    const autoSize = ({
-      height,
-      isScrolling,
-      onChildScroll,
-      scrollTop,
-      onRowsRendered,
-    }) => (
-      <AutoSizer disableHeight>
-        {({ width }) =>
-          vlist({
-            height,
-            isScrolling,
-            onChildScroll,
-            scrollTop,
-            onRowsRendered,
-            width,
-          })
-        }
-      </AutoSizer>
     );
 
     const infiniteLoader = ({
@@ -132,7 +110,7 @@ class Chart extends Component {
         threshold={0}
       >
         {({ onRowsRendered }) =>
-          autoSize({
+          vlist({
             height,
             isScrolling,
             onChildScroll,
