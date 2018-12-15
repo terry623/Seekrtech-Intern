@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const baseURL = process.env.SERVER_URL;
+import { getServerURL } from '../config';
+
+const baseURL = getServerURL();
 const recordsNumber = 20;
 const maximumNumber = 100;
 

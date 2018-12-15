@@ -1,17 +1,16 @@
-try {
-  console.log('In Config');
+const getServerURL = () => {
   console.log(process.env.NODE_ENV);
 
-  switch (process.env.NODE_ENV) {
-    case 'development':
-      process.env.SERVER_URL = 'http:localhost:8080';
-      console.log(process.env.SERVER_URL);
-      break;
-    default:
-      process.env.SERVER_URL = 'http:localhost:8080';
-      console.log(process.env.SERVER_URL);
-      break;
+  try {
+    switch (process.env.NODE_ENV) {
+      case 'development':
+        return 'http://localhost:8080';
+      default:
+        return 'https://seekrtech-intern-backend.now.sh';
+    }
+  } catch (err) {
+    console.log(err);
   }
-} catch (err) {
-  console.log(err);
-}
+};
+
+export { getServerURL };
