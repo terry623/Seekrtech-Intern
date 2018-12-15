@@ -3,7 +3,7 @@ import InfiniteLoader from 'react-virtualized/dist/commonjs/InfiniteLoader';
 import React, { Component } from 'react';
 import VList from 'react-virtualized/dist/commonjs/List';
 import WindowScroller from 'react-virtualized/dist/commonjs/WindowScroller';
-import { Avatar, List, message } from 'antd';
+import { List, message } from 'antd';
 
 import './index.css';
 
@@ -13,7 +13,7 @@ import {
   recordsNumber,
 } from '../../api';
 
-// import Cell from './Cell';
+import Cell from './Cell';
 
 class Chart extends Component {
   state = {
@@ -68,17 +68,7 @@ class Chart extends Component {
   renderItem = ({ index, key, style }) => {
     const { data } = this.state;
     const item = data[index];
-    return (
-      <List.Item key={key} style={style}>
-        <List.Item.Meta
-          avatar={
-            <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
-          }
-          title={<a href="https://ant.design">{index}</a>}
-        />
-        <div>{item.name}</div>
-      </List.Item>
-    );
+    return <Cell key={key} style={style} item={item} />;
   };
 
   render() {
