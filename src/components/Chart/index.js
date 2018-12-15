@@ -93,7 +93,7 @@ class Chart extends Component {
         rowRenderer={this.renderItem}
         onRowsRendered={onRowsRendered}
         scrollTop={scrollTop}
-        width={width}
+        width={width / 3}
       />
     );
 
