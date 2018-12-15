@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseURL = 'http://localhost:8080';
+const baseURL = process.env.SERVER_URL;
 const recordsNumber = 20;
 const maximumNumber = 100;
 

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import './config';
 
 import Chart from './components/Chart';
 
