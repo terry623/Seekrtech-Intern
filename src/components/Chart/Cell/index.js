@@ -2,10 +2,10 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Avatar, Col, Row } from 'antd';
 
-import badge from '../../../image/leaderboard_badge.png';
-import dead from '../../../image/tree_icon_dead.png';
-import health from '../../../image/tree_icon_healthy.png';
-import icon from '../../../image/icon_120.png';
+import badge from '../image/leaderboard_badge.png';
+import dead from '../image/tree_icon_dead.png';
+import health from '../image/tree_icon_healthy.png';
+import icon from '../image/icon_120.png';
 
 import './index.css';
 
