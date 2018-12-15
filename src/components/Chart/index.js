@@ -1,8 +1,8 @@
 import InfiniteLoader from 'react-virtualized/dist/commonjs/InfiniteLoader';
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import VList from 'react-virtualized/dist/commonjs/List';
 import WindowScroller from 'react-virtualized/dist/commonjs/WindowScroller';
-import { List, message } from 'antd';
+import { message } from 'antd';
 
 import './index.css';
 
@@ -67,7 +67,7 @@ class Chart extends Component {
   renderItem = ({ index, key, style }) => {
     const { data } = this.state;
     const item = data[index];
-    return <Cell key={key} style={style} item={item} />;
+    return <Cell key={key} style={style} rank={index} item={item} />;
   };
 
   render() {
@@ -92,7 +92,7 @@ class Chart extends Component {
         rowRenderer={this.renderItem}
         onRowsRendered={onRowsRendered}
         scrollTop={scrollTop}
-        width={600}
+        width={400}
       />
     );
 
@@ -122,9 +122,9 @@ class Chart extends Component {
     );
 
     return (
-      <List>
+      <Fragment>
         {data.length > 0 && <WindowScroller>{infiniteLoader}</WindowScroller>}
-      </List>
+      </Fragment>
     );
   }
 }
