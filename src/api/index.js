@@ -15,7 +15,6 @@ async function getForestRankingDataFromServer({ lastPosition }) {
     console.error(error);
   }
 
-  console.log(response.data.ranking);
   return response.data.ranking;
 }
 
