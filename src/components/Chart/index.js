@@ -1,6 +1,6 @@
 import InfiniteLoader from 'react-virtualized/dist/commonjs/InfiniteLoader';
+import List from 'react-virtualized/dist/commonjs/List';
 import React, { Component } from 'react';
-import VList from 'react-virtualized/dist/commonjs/List';
 
 import './index.css';
 
@@ -60,7 +60,7 @@ class Chart extends Component {
         threshold={1}
       >
         {({ onRowsRendered, registerChild }) => (
-          <VList
+          <List
             className="main"
             height={640}
             onRowsRendered={onRowsRendered}
