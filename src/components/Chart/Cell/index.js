@@ -21,10 +21,10 @@ const Cell = ({
   },
 }) => (
   <Row style={style} className="each_row">
-    <Col span={2} className="each_col">
+    <Col span={4} className="each_col">
       <Avatar size={40} src={avatar || icon} />
     </Col>
-    <Col span={8} offset={2} className="each_col">
+    <Col span={14} className="each_col">
       <div>{name}</div>
       <span className="icon_block">
         <Avatar className="icon_avatar" size={16} src={health} />
@@ -35,7 +35,7 @@ const Cell = ({
         {deadCount}
       </span>
     </Col>
-    <Col span={6} offset={6}>
+    <Col span={6}>
       <div className="badgeBlock">
         <div className="rank">{rank + 1}</div>
         <img className="badge" alt="badge" src={badge} />
